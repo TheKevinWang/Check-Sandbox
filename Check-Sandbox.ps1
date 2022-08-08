@@ -48,11 +48,12 @@ Function Check-Sandbox() {
                 $FilterMatchCnt += 1
             }
         }
+        if ($FilterMatchCnt -gt $DesktopFilterMatchLimit) {
+            $Result = $True
+            #break
+        }
     }
 
-    if ($FilterMatchCnt -gt $DesktopFilterMatchLimit) {
-        $Result = $True
-    }
     # 1073741824 = 1GB
     if ((((get-psdrive -Name C).Free / 1073741824) + (get-psdrive -Name C).Used / 1073741824) -lt 50 ) {
         $Result = $True
@@ -70,8 +71,8 @@ Function Check-Sandbox() {
         $Result = $True
     }
 
-    $totalPhysicalmemory = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1073741824
-    if ($totalPhysicalmemory -lt 4) {
+    $TotalPhysicalMem = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1073741824
+    if ($TotalPhysicalMem -lt 4) {
         $Result = $True
     }
 
