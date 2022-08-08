@@ -2,8 +2,8 @@
 .SYNOPSIS
 
 Check for evidence of sandbox by looking for static honey files, checking if total c disk space is less than 50GB,
-the abscence of "_WAIT" connections (abscence of network connection activity), physical mem used by all processes from ps under 2GB,
-total physical memory under 4GB. 
+the abscence of "_WAIT" connections (abscence of network connection activity), physical mem used by all processes from ps under 1.2GB,
+total physical memory less than or equal to 2GB. 
 Checks were discovered from probing VirusTotal sandboxes.
 
 
@@ -19,7 +19,7 @@ Function Check-Sandbox() {
     }
     # using dict because more stealthy than hashset
     # keys dont matter, so in real usage, replace with some benign text
-    # add your own here
+    # add your own filename filters here
     $DesktopFilters = @(
         @{ 
             'accounts.xlsx' = ''
@@ -28,12 +28,18 @@ Function Check-Sandbox() {
             'Financial_Report.xls' = ''
             'Incidents.pptx' = ''
             'passwords.txt' = ''
+            'secret.txt' = ''
         },
         @{
-        'My credit cards.xlsx' = ''
-        'New PT.pptx' = ''
-        'Payment plans.docx' = ''
-        'Salaries.xlsx' = ''
+            'My credit cards.xlsx' = ''
+            'New PT.pptx' = ''
+            'Payment plans.docx' = ''
+            'Salaries.xlsx' = ''
+        },
+        @{
+            'detonate.py' = ''
+            'file.doc' = ''
+            'agent.py' = ''
         }
     )
     $Result = $False
@@ -67,12 +73,12 @@ Function Check-Sandbox() {
 
     $PsPhysicalMemSum = 0 
     ps | %{$PsPhysicalMemSum += $_.WorkingSet64 }
-    if (($PsPhysicalMemSum / 1073741824) -lt 2) {
+    if (($PsPhysicalMemSum / 1073741824) -lt 1.2) {
         $Result = $True
     }
-
+    
     $TotalPhysicalMem = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1073741824
-    if ($TotalPhysicalMem -lt 4) {
+    if ($TotalPhysicalMem -le 2) {
         $Result = $True
     }
 
